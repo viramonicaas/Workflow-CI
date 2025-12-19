@@ -42,7 +42,13 @@ jobs:
       - name: Run mlflow project
         run: |
           cd MLProject
-          mlflow run . --env-manager=local
+          mlflow run . --env-manager=local | tee mlflow.log
+      
+      - name: Extract RUN_ID
+        run: |
+          RUN_ID=$(grep -oP "run with ID '\K[0-9a-f]+'" MLProject/mlflow.log)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Extracted RUN_ID=$RUN_ID"
 
       # Upload artifacts
       - name: Upload artifacts to GitHub
@@ -63,7 +69,7 @@ jobs:
         run: |
           cd MLProject
           mlflow models build-docker \
-          -m ./mlruns/0/*/artifacts/model \
+          -m runs:/${RUN_ID}/model \
           -n viramonicaa/diabetes-mflow
 
       # Tag Docker Image
