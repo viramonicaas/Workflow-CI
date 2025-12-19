@@ -1,4 +1,4 @@
-name: diabetes-ci
+name: diabetes-mlflow
 
 entry_points:
   main:
