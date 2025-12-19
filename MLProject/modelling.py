@@ -27,10 +27,5 @@ acc = accuracy_score(y_test, preds)
 
 client.log_metric(run_id, "accuracy", acc)
 
-os.makedirs("model", exist_ok=True)
-mlflow.sklearn.save_model(model, "model")
-mlflow.sklearn.log_model(
-    sk_model=model,
-    artifact_path="model",
-    run_id=run_id
-)
+with mlflow.start_run(run_id=run_id, nested=False):
+    mlflow.sklearn.log_model(model, "model")
