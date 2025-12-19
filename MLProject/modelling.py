@@ -5,6 +5,8 @@ import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
+mlflow.set_experiment("ci-mlflow")
+
 train = pd.read_csv("dataset_preprocessing/diabetes_train_preprocessed.csv")
 test = pd.read_csv("dataset_preprocessing/diabetes_test_preprocessed.csv")
 
@@ -20,4 +22,7 @@ preds = model.predict(X_test)
 acc = accuracy_score(y_test, preds)
 
 mlflow.log_metric("accuracy", acc)
-mlflow.sklearn.log_model(model, "model")
+
+os.makedirs("model", exist_ok=True)
+mlflow.sklearn.save_model(model, "model")
+mlflow.sklearn.log_model(model, artifact_path="model")
