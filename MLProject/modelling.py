@@ -14,12 +14,11 @@ y_train = train["diabetes"]
 X_test = test.drop(columns=["diabetes"])
 y_test = test["diabetes"]
 
-with mlflow.start_run():
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
 
-    preds = model.predict(X_test)
-    acc = accuracy_score(y_test, preds)
+preds = model.predict(X_test)
+acc = accuracy_score(y_test, preds)
 
-    mlflow.log_metric("accuracy", acc)
-    mlflow.sklearn.log_model(model, "model")
+mlflow.log_metric("accuracy", acc)
+mlflow.sklearn.log_model(model, "model")
