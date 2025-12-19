@@ -2,10 +2,14 @@ import os
 import pandas as pd
 import mlflow
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-mlflow.set_experiment("ci-mlflow")
+run_id = os.environ.get("MLFLOW_RUN_ID")
+assert run_id is not None, "MLFLOW_RUN_ID not found"
+
+client = MlflowClient()
 
 train = pd.read_csv("dataset_preprocessing/diabetes_train_preprocessed.csv")
 test = pd.read_csv("dataset_preprocessing/diabetes_test_preprocessed.csv")
@@ -21,8 +25,12 @@ model.fit(X_train, y_train)
 preds = model.predict(X_test)
 acc = accuracy_score(y_test, preds)
 
-mlflow.log_metric("accuracy", acc)
+client.log_metric(run_id, "accuracy", acc)
 
 os.makedirs("model", exist_ok=True)
 mlflow.sklearn.save_model(model, "model")
-mlflow.sklearn.log_model(model, artifact_path="model")
+mlflow.sklearn.log_model(
+    sk_model=model,
+    artifact_path="model",
+    run_id=run_id
+)
