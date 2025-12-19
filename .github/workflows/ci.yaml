@@ -51,6 +51,10 @@ jobs:
         run: |
           RUN_ID=$(mlflow runs list --experiment-name ci-mlflow --max-results 1 | tail -n 1 | awk '{print $1}')
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+      
+      - name: Debug RUN_ID
+        run: |
+          echo "RUN_ID is: $RUN_ID"
 
       # Upload artifacts
       - name: Upload artifacts to GitHub
@@ -68,7 +72,12 @@ jobs:
 
       # Build Docker Model
       - name: Build Docker Model
+        env:
+          MLFLOW_TRACKING_URI: https://dagshub.com/viramonicaas/eksperimen_SML_ViraMonica.mlflow
+          MLFLOW_TRACKING_USERNAME: viramonicaas
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
+          echo "Building docker for run_id=$RUN_ID"
           cd MLProject
           mlflow models build-docker \
             -m runs:/$RUN_ID/model \
@@ -79,4 +88,3 @@ jobs:
         run: |
           docker tag viramonicaa/diabetes-mflow viramonicaa/diabetes-mflow:latest
           docker push viramonicaa/diabetes-mflow:latest
-
