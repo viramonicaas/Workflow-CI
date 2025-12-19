@@ -63,8 +63,8 @@ jobs:
         run: |
           cd MLProject
           mlflow models build-docker \
-            -m runs:/$MLFLOW_RUN_ID/model \
-            -n viramonicaa/diabetes-mflow
+          -m ./mlruns/0/*/artifacts/model \
+          -n viramonicaa/diabetes-mflow
 
       # Tag Docker Image
       - name: Tag Docker Image
