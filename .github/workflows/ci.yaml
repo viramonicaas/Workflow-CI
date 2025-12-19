@@ -42,13 +42,23 @@ jobs:
       - name: Run mlflow project
         run: |
           cd MLProject
-          mlflow run . --env-manager=local | tee mlflow.log
+          mlflow run . --env-manager=local 2>&1 | tee mlflow.log
       
       - name: Extract RUN_ID
         run: |
-          RUN_ID=$(grep -oP "run with ID '\K[0-9a-f]+'" MLProject/mlflow.log)
+          RUN_ID=$(grep -oP "run with ID '\K[0-9a-f]+'" MLProject/mlflow.log | head -n 1 || true)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Extracted RUN_ID=$RUN_ID"
+
+      - name: Validate RUN_ID
+        run: |
+          if [ -z "$RUN_ID" ]; then
+            echo "ERROR: RUN_ID is empty"
+            echo "==== mlflow.log ===="
+            cat MLProject/mlflow.log
+            exit 1
+          fi
+
 
       # Upload artifacts
       - name: Upload artifacts to GitHub
