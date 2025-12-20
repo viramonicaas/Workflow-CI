@@ -1,8 +1,15 @@
 import pandas as pd
+import os
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+if tracking_uri:
+    mlflow.set_tracking_uri(tracking_uri)
+
+print(f"Tracking URI: {mlflow.get_tracking_uri()}")
 
 train = pd.read_csv("dataset_preprocessing/diabetes_train_preprocessed.csv")
 test = pd.read_csv("dataset_preprocessing/diabetes_test_preprocessed.csv")

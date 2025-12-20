@@ -42,20 +42,20 @@ jobs:
       - name: Run mlflow project
         run: |
           cd MLProject
-          mlflow run . --env-manager=local 2>&1 | tee mlflow.log
+          mlflow run . --env-manager=local > mlflow_execution.log 2>&1
+          cat mlflow_execution.log
       
       - name: Extract RUN_ID
         run: |
-          RUN_ID=$(grep -oP "run with ID '\K[0-9a-f]+'" MLProject/mlflow.log | head -n 1 || true)
+          RUN_ID=$(grep -oE '[a-f0-9]{32}' MLProject/mlflow_execution.log | head -n 1)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Extracted RUN_ID=$RUN_ID"
+          echo "Berhasil mengekstrak RUN_ID: $RUN_ID"
 
       - name: Validate RUN_ID
         run: |
           if [ -z "$RUN_ID" ]; then
-            echo "ERROR: RUN_ID is empty"
-            echo "==== mlflow.log ===="
-            cat MLProject/mlflow.log
+            echo "ERROR: RUN_ID tidak ditemukan di log!"
+            cat mlflow_output.log
             exit 1
           fi
 
@@ -77,10 +77,10 @@ jobs:
       # Build Docker Model
       - name: Build Docker Model
         run: |
-          cd MLProject
           mlflow models build-docker \
-          -m runs:/${RUN_ID}/model \
-          -n viramonicaa/diabetes-mflow
+          -m runs:/${{ env.RUN_ID }}/model \
+          -n viramonicaa/diabetes-mflow \
+          --install-mlflow
 
       # Tag Docker Image
       - name: Tag Docker Image
